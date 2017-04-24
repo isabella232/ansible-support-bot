@@ -1,4 +1,6 @@
 ---
+extra_repos_mariadb: yes
+
 firewall_allowed_tcp_ports:
   - 22
   - 3306

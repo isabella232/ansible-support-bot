@@ -1,0 +1,13 @@
+---
+extra_repos_mariadb: no
+extra_repos_mariadb_key_server: keyserver.ubuntu.com
+extra_repos_mariadb_key_id: cbcb082a1bb943db
+extra_repos_mariadb_repo: deb http://mirror.rackspeed.de/mariadb.org/repo/10.1/debian jessie main
+
+extra_repos_nginx: no
+extra_repos_nginx_key_url: https://nginx.org/keys/nginx_signing.key
+extra_repos_nginx_repo: deb http://nginx.org/packages/debian/ jessie nginx
+
+extra_repos_php71: no
+extra_repos_php71_gpg_url: https://packages.sury.org/php/apt.gpg
+extra_repos_php71_repo: deb https://packages.sury.org/php/ jessie main

@@ -7,16 +7,9 @@
     - ../../vars.yml
 
   pre_tasks:
-    - name: Add Nginx repo key for latest version.
-      apt_key:
-        url: https://nginx.org/keys/nginx_signing.key
-    - name: Add Nginx repo for latest version.
-      apt_repository:
-        repo: "deb http://nginx.org/packages/debian/ jessie nginx"
-        update_cache: yes
 
   roles:
-    - { role: ../../roles/php71repo, tags: php71repo }
+    - { role: ../../roles/extra-repos, tags: extra-repos }
     - { role: geerlingguy.git, tags: git }
     - { role: geerlingguy.firewall, tags: firewall }
     - { role: geerlingguy.security, tags: security }

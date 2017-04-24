@@ -1,4 +1,7 @@
 ---
+extra_repos_nginx: yes
+extra_repos_php71: yes
+
 firewall_allowed_tcp_ports:
   - 22
   - 443

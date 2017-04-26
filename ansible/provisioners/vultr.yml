@@ -16,6 +16,7 @@
         VPSPLANID: "{{ item.VPSPLANID | default(201) }}" # 1024MB / 25GB SSD
         OSID: "{{ item.OSID | default(193) }}" # Debian 8x64
         SSHKEYID: "{{ item.SSHKEYID | default(omit) }}"
+        hostname: "{{ item.hostname | default(item.label) }}"
         enable_private_network: yes
         unique_label: yes
         notify_activate: no
@@ -50,10 +51,6 @@
 
     - name: Set hosts FQDN
       lineinfile: dest=/etc/hosts regexp=".*{{ hostvars[inventory_hostname].label }}$" line="{{ inventory_hostname }} {{ hostvars[inventory_hostname].label }}" state=present
-      notify: restart networking
-
-    - name: Set hostname
-      hostname: name={{ hostvars[inventory_hostname].label }}
       notify: restart networking
 
     - name: Include custom network interfaces

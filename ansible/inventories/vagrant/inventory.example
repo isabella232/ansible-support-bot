@@ -1,0 +1,9 @@
+# Copy this file and rename it to "inventory".
+# After provisioning, add your servers here for direct access:
+# $ ansible www-server,db-server -m ping
+
+[www-server]
+192.168.2.5
+
+[db-server]
+192.168.2.6

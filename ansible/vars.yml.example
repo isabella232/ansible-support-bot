@@ -1,0 +1,27 @@
+---
+servers:
+  - label: "www-server"
+    group: www
+    SSHKEYID: YOUR_SSH_KEY_ID
+  - label: "db-server"
+    group: db
+    SSHKEYID: YOUR_SSH_KEY_ID
+
+db_mysql_username: db_username
+db_mysql_database: db_database
+db_mysql_password: db_password
+
+nginx_vhosts_filename: "www-server"
+nginx_vhosts:
+  - listen: "443 default_server"
+    server_name: "{{ www_main_ip }} {{ groups['www'][0] }}"
+    root: "/var/www/www-server/public"
+    index: index.php
+    extra_parameters: |
+      location ~ \.php$ {
+          fastcgi_split_path_info ^(.+\.php)(/.+)$;
+          fastcgi_pass php-handler;
+          fastcgi_index index.php;
+          fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+          include fastcgi_params;
+      }

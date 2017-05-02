@@ -9,7 +9,7 @@
   pre_tasks:
 
   roles:
-    - { role: ../../roles/extra-repos, tags: extra-repos }
+    - { role: noplanman.apt-extra-sources, tags: apt-extra-sources }
     - { role: geerlingguy.git, tags: git }
     - { role: geerlingguy.firewall, tags: firewall }
     - { role: geerlingguy.security, tags: security }

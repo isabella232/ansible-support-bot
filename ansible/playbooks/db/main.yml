@@ -16,7 +16,7 @@
             priv: "*.*:ALL"
 
   roles:
-    - { role: ../../roles/extra-repos, tags: extra-repos }
+    - { role: noplanman.apt-extra-sources, tags: apt-extra-sources }
     - { role: geerlingguy.firewall, tags: firewall }
     - { role: geerlingguy.security, tags: security }
     - { role: geerlingguy.mysql, tags: mysql }

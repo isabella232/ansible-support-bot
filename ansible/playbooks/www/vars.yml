@@ -1,6 +1,6 @@
 ---
-extra_repos_nginx: yes
-extra_repos_php71: yes
+apt_extra_sources_nginx: yes
+apt_extra_sources_php71: yes
 
 firewall_allowed_tcp_ports:
   - 22

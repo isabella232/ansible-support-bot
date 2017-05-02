@@ -1,9 +1,0 @@
----
-# https://nginx.org/en/linux_packages.html#stable
-- name: Ensure Nginx repository key is installed.
-  apt_key:
-    url: "{{ extra_repos_nginx_key_url }}"
-
-- name: Ensure Nginx APT repository list is installed.
-  apt_repository:
-    repo: "{{ extra_repos_nginx_repo }}"

@@ -1,5 +1,5 @@
 ---
-extra_repos_mariadb: yes
+apt_extra_sources_mariadb: yes
 
 firewall_allowed_tcp_ports:
   - 22

@@ -1,0 +1,15 @@
+---
+- hosts: all
+  gather_facts: yes
+
+  tasks:
+    - name: Set IP facts
+      set_fact:
+        www_main_ip: "{{ hostvars[groups['www'][0]].ansible_eth0.ipv4.address }}"
+        www_internal_ip: "{{ hostvars[groups['www'][0]].ansible_eth1.ipv4.address }}"
+        db_main_ip: "{{ hostvars[groups['db'][0]].ansible_eth0.ipv4.address }}"
+        db_internal_ip: "{{ hostvars[groups['db'][0]].ansible_eth1.ipv4.address }}"
+      tags: always
+
+- include: playbooks/www/main.yml
+- include: playbooks/db/main.yml

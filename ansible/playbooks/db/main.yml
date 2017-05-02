@@ -1,0 +1,29 @@
+---
+- hosts: db
+  become: yes
+
+  vars_files:
+    - vars.yml
+    - ../../vars.yml
+
+  pre_tasks:
+    - name: Add MariaDB repo key for latest version.
+      apt_key:
+        keyserver: keyserver.ubuntu.com
+        id: cbcb082a1bb943db
+    - name: Add MariaDB repo for latest version.
+      apt_repository:
+        repo: "deb http://mirror.rackspeed.de/mariadb.org/repo/10.1/debian jessie main"
+        update_cache: yes
+    - name: Create dynamic MySQL variables.
+      set_fact:
+        mysql_users:
+          - name: "{{ db_mysql_username }}"
+            host: "{{ www_internal_ip }}"
+            password: "{{ db_mysql_password }}"
+            priv: "*.*:ALL"
+
+  roles:
+    - { role: geerlingguy.firewall, tags: firewall }
+    - { role: geerlingguy.security, tags: security }
+    - { role: geerlingguy.mysql, tags: mysql }

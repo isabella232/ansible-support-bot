@@ -1,0 +1,40 @@
+---
+- hosts: www
+  become: yes
+
+  vars_files:
+    - vars.yml
+    - ../../vars.yml
+
+  pre_tasks:
+    - name: Add Nginx repo key for latest version.
+      apt_key:
+        url: https://nginx.org/keys/nginx_signing.key
+    - name: Add Nginx repo for latest version.
+      apt_repository:
+        repo: "deb http://nginx.org/packages/debian/ jessie nginx"
+        update_cache: yes
+
+  roles:
+    - { role: ../../roles/php71repo, tags: php71repo }
+    - { role: geerlingguy.git, tags: git }
+    - { role: geerlingguy.firewall, tags: firewall }
+    - { role: geerlingguy.security, tags: security }
+    - { role: geerlingguy.nginx, tags: nginx }
+    # - { role: geerlingguy.memcached, tags: memcached }
+    - { role: geerlingguy.php, tags: php }
+    - { role: geerlingguy.composer, tags: composer }
+    - { role: geerlingguy.php-mysql, tags: php-mysql }
+    # - { role: geerlingguy.php-memcached, tags: php-memcached }
+
+  tasks:
+    - name: Create directory
+      file:
+        path: /var/www/supportbot.tgbot.net/public
+        state: directory
+        owner: www-data
+        group: www-data
+    - name: Copy our fancy server-specific home page.
+      template:
+        src: templates/index.php.j2
+        dest: /var/www/supportbot.tgbot.net/public/index.php

@@ -1,0 +1,7 @@
+---
+# For Vagrant provisioning, use `vagrant up` instead of this playbook.
+
+- include: provisioners/vultr.yml
+
+# Configure provisioned servers.
+- include: configure.yml

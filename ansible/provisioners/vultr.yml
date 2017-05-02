@@ -1,0 +1,73 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ../vars.yml
+
+  tasks:
+    - name: Provision Vultr servers.
+      vultr:
+        command: server
+        state: "{{ item.state | default('present') }}"
+        label: "{{ item.label }}"
+        DCID: "{{ item.DCID | default(9) }}" # Frankfurt
+        VPSPLANID: "{{ item.VPSPLANID | default(201) }}" # 1024MB / 25GB SSD
+        OSID: "{{ item.OSID | default(193) }}" # Debian 8x64
+        SSHKEYID: "{{ item.SSHKEYID | default(omit) }}"
+        enable_private_network: yes
+        unique_label: yes
+        notify_activate: no
+      register: created_servers
+      with_items: "{{ servers }}"
+
+    - name: Add Vultr hosts to inventory groups.
+      add_host:
+        name: "{{ item.1.server.main_ip }}"
+        groups: "vultr,{{ servers[item.0].group }}"
+        label: "{{ item.1.server.label }}"
+        main_ip: "{{ item.1.server.main_ip }}"
+        internal_ip: "{{ item.1.server.internal_ip }}"
+      when: item.1.server is defined
+      with_indexed_items: "{{ created_servers.results }}"
+      changed_when: created_servers.changed
+
+# Run some general configuration on all vultr hosts.
+- hosts: vultr
+  gather_facts: false
+
+  handlers:
+    - name: restart networking
+      service: name=networking state=restarted
+
+  tasks:
+    - name: Wait for port 22 to become available.
+      local_action: "wait_for port=22 host={{ inventory_hostname }}"
+
+    - name: Ping pong all hosts
+      ping:
+
+    - name: Set hosts FQDN
+      lineinfile: dest=/etc/hosts regexp=".*{{ hostvars[inventory_hostname].label }}$" line="{{ inventory_hostname }} {{ hostvars[inventory_hostname].label }}" state=present
+      notify: restart networking
+
+    - name: Set hostname
+      hostname: name={{ hostvars[inventory_hostname].label }}
+      notify: restart networking
+
+    - name: Include custom network interfaces
+      lineinfile:
+        dest: /etc/network/interfaces
+        line: "source /etc/network/interfaces.d/*"
+      notify: restart networking
+
+    - name: Write private network interface (eth1)
+      copy:
+        content: |
+          auto eth1
+          iface eth1 inet static
+            address {{ hostvars[inventory_hostname].internal_ip }}
+            netmask 255.255.0.0
+        dest: /etc/network/interfaces.d/eth1
+      notify: restart networking

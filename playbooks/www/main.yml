@@ -21,15 +21,3 @@
     - { role: geerlingguy.composer, tags: composer }
     - { role: geerlingguy.php-mysql, tags: php-mysql }
     # - { role: geerlingguy.php-memcached, tags: php-memcached }
-
-  tasks:
-    - name: Create directory
-      file:
-        path: /var/www/supportbot.tgbot.net/public
-        state: directory
-        owner: www-data
-        group: www-data
-    - name: Copy our fancy server-specific home page.
-      template:
-        src: templates/index.php.j2
-        dest: /var/www/supportbot.tgbot.net/public/index.php

@@ -8,9 +8,6 @@ firewall_allowed_tcp_ports:
 # @todo: Remove when sudo user is created.
 security_ssh_permit_root_login: "yes"
 
-git_packages:
-  - git
-
 php_packages:
   - php7.1-common
   - php7.1-cli
@@ -37,9 +34,13 @@ php_conf_paths:
 php_extension_conf_paths:
   - /etc/php/7.1/cli/conf.d
   - /etc/php/7.1/fpm/conf.d
+php_date_timezone: "Etc/UTC"
 
 nginx_server_tokens: "off"
 nginx_remove_default_vhost: yes
+
+nginx_conf_path: /etc/nginx/conf.d
+nginx_default_vhost_path: "{{ nginx_conf_path }}/default.conf"
 
 nginx_upstreams:
   - name: php-handler

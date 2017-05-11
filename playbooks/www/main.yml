@@ -13,6 +13,8 @@
     - { role: geerlingguy.git, tags: git }
     - { role: geerlingguy.firewall, tags: firewall }
     - { role: geerlingguy.security, tags: security }
+    # dhparam MUST come before nginx!
+    - { role: noplanman.dhparam, tags: dhparam }
     - { role: geerlingguy.nginx, tags: nginx }
     # - { role: geerlingguy.memcached, tags: memcached }
     - { role: geerlingguy.php, tags: php }

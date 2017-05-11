@@ -45,3 +45,20 @@ nginx_upstreams:
   - name: php-handler
     servers:
       - unix:/var/run/php/php7.1-fpm.sock
+
+dhparam_size: 4096
+dhparam_create_on_local_machine: yes
+dhparam_periodic_update: monthly
+
+nginx_extra_http_options: |
+  ##
+  # SSL Settings
+  ##
+  ssl_dhparam {{ dhparam_path }};
+  ssl_prefer_server_ciphers on;
+  ssl_protocols TLSv1.2;
+  ssl_ciphers 'ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!aNULL:!MD5:!DSS';
+  ssl_ecdh_curve secp384r1;
+  ssl_session_timeout 1d;
+  ssl_session_cache shared:SSL:10m;
+  ssl_session_tickets off;

@@ -1,5 +1,6 @@
 ---
 - src: noplanman.apt-extra-sources
+- src: noplanman.dhparam
 - src: geerlingguy.git
 - src: geerlingguy.firewall
 - src: geerlingguy.security

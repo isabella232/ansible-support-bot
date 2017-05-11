@@ -7,13 +7,6 @@
     - ../../vars.yml
 
   pre_tasks:
-    - name: Create dynamic MySQL variables.
-      set_fact:
-        mysql_users:
-          - name: "{{ db_mysql_username }}"
-            host: "{{ www_internal_ip }}"
-            password: "{{ db_mysql_password }}"
-            priv: "*.*:ALL"
 
   roles:
     - { role: noplanman.apt-extra-sources, tags: apt-extra-sources }

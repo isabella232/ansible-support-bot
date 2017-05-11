@@ -11,5 +11,5 @@
         db_internal_ip: "{{ hostvars[groups['db'][0]].ansible_eth1.ipv4.address }}"
       tags: always
 
-- include: playbooks/www/main.yml
 - include: playbooks/db/main.yml
+- include: playbooks/www/main.yml

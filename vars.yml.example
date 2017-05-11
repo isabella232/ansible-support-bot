@@ -7,7 +7,7 @@ servers:
     group: db
     SSHKEYID: YOUR_SSH_KEY_ID
 
-db_mysql_username: db_username
+db_mysql_user: db_username
 db_mysql_database: db_database
 db_mysql_password: db_password
 

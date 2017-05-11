@@ -17,3 +17,9 @@ mysql_databases:
   - name: "{{ db_mysql_database }}"
     collation: utf8mb4_unicode_520_ci
     encoding: utf8mb4
+
+mysql_users:
+  - name: "{{ db_mysql_user }}"
+    host: "{{ www_internal_ip }}"
+    password: "{{ db_mysql_password }}"
+    priv: "{{ db_mysql_database }}.*:ALL"

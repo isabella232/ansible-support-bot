@@ -1,3 +1,21 @@
 ---
 - include_tasks: "{{ supportbot_hooks_pre_tasks_before | default('../hooks/empty.yml') }}"
+
+- name: Install global packages
+  apt: name="{{ item }}"
+  with_items: "{{ apt_packages_global }}"
+
+- name: Ensure sudo user exists, to not require root login.
+  user:
+    name: "{{ supportbot_user }}"
+    group: "{{ supportbot_group }}"
+    shell: /bin/bash
+    state: present
+
+- name: Upload the local SSH public key for password-less login.
+  authorized_key:
+    user: "{{ supportbot_user }}"
+    key: "{{ supportbot_ssh_public_key }}"
+    state: present
+
 - include_tasks: "{{ supportbot_hooks_pre_tasks_after | default('../hooks/empty.yml') }}"

@@ -1,6 +1,7 @@
 ---
 - src: noplanman.apt-extra-sources
 - src: noplanman.dhparam
+- src: php-telegram-bot.php-telegram-bot
 - src: geerlingguy.git
 - src: geerlingguy.firewall
 - src: geerlingguy.security

@@ -1,0 +1,3 @@
+---
+# Make sure all handlers are flushed, so that the proper firewall rules are set.
+- meta: flush_handlers

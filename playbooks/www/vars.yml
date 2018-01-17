@@ -72,3 +72,5 @@ acme_webserver_daemon: nginx
 acme_reloadcmd: "service nginx reload"
 acme_hpkp_enabled: yes
 acme_hpkp_path: "{{ nginx_conf_path }}"
+
+php_telegram_bot_hooks_before_webhook: "{{ playbook_dir }}/hooks/before-webhooks.yml"

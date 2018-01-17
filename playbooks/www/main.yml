@@ -25,6 +25,7 @@
     - { role: ../../roles/acme, tags: acme }
     - { role: noplanman.dhparam, tags: dhparam }
     - { role: geerlingguy.nginx, tags: nginx }
+    - { role: php-telegram-bot.php-telegram-bot, tags: php-telegram-bot }
 
   post_tasks:
     - include_tasks: tasks/post_tasks.yml

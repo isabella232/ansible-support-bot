@@ -1,0 +1,3 @@
+---
+- include_tasks: "{{ supportbot_hooks_pre_tasks_before | default('../hooks/empty.yml') }}"
+- include_tasks: "{{ supportbot_hooks_pre_tasks_after | default('../hooks/empty.yml') }}"

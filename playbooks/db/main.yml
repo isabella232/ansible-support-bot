@@ -7,9 +7,13 @@
     - ../../vars.yml
 
   pre_tasks:
+    - include_tasks: tasks/pre_tasks.yml
 
   roles:
     - { role: noplanman.apt-extra-sources, tags: apt-extra-sources }
     - { role: geerlingguy.firewall, tags: firewall }
     - { role: geerlingguy.security, tags: security }
     - { role: geerlingguy.mysql, tags: mysql }
+
+  post_tasks:
+    - include_tasks: tasks/post_tasks.yml

@@ -7,6 +7,7 @@
     - ../../vars.yml
 
   pre_tasks:
+    - include_tasks: tasks/pre_tasks.yml
 
   roles:
     - { role: noplanman.apt-extra-sources, tags: apt-extra-sources }
@@ -21,3 +22,6 @@
     - { role: geerlingguy.composer, tags: composer }
     - { role: geerlingguy.php-mysql, tags: php-mysql }
     # - { role: geerlingguy.php-memcached, tags: php-memcached }
+
+  post_tasks:
+    - include_tasks: tasks/post_tasks.yml

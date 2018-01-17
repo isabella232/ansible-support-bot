@@ -42,11 +42,6 @@ acme_hpkp_le_pins:
 
 acme_ocsp_enabled: yes
 
-# acme_dhparam_create: yes
-# acme_dhparam_create_on_localhost: yes
-# acme_dhparam_path: /etc/ssl/certs/dhparam.pem
-# acme_dhparam_size: 4096
-
 acme_reloadcmd: ""
 acme_install_cron: yes
 acme_keylength: 4096

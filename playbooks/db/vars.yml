@@ -1,5 +1,8 @@
 ---
 apt_extra_sources_mariadb: yes
+apt_extra_sources_mariadb_version: 10.2
+# Stretch uses a different key!
+apt_extra_sources_mariadb_key_id: F1656F24C74CD1D8
 
 firewall_allowed_tcp_ports:
   - 22

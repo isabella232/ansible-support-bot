@@ -9,19 +9,22 @@
   pre_tasks:
     - include_tasks: tasks/pre_tasks.yml
 
+  # Role order is important!
   roles:
     - { role: noplanman.apt-extra-sources, tags: apt-extra-sources }
     - { role: geerlingguy.git, tags: git }
     - { role: geerlingguy.firewall, tags: firewall }
     - { role: geerlingguy.security, tags: security }
-    # dhparam MUST come before nginx!
-    - { role: noplanman.dhparam, tags: dhparam }
-    - { role: geerlingguy.nginx, tags: nginx }
+    # - { role: geerlingguy.php, tags: php }
     # - { role: geerlingguy.memcached, tags: memcached }
-    - { role: geerlingguy.php, tags: php }
-    - { role: geerlingguy.composer, tags: composer }
+    # No need to install php role separately, as it's a dependency of php-mysql.
     - { role: geerlingguy.php-mysql, tags: php-mysql }
     # - { role: geerlingguy.php-memcached, tags: php-memcached }
+    - { role: geerlingguy.composer, tags: composer }
+    # acme and dhparam MUST come before nginx!
+    - { role: ../../roles/acme, tags: acme }
+    - { role: noplanman.dhparam, tags: dhparam }
+    - { role: geerlingguy.nginx, tags: nginx }
 
   post_tasks:
     - include_tasks: tasks/post_tasks.yml

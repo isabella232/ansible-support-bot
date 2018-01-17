@@ -1,0 +1,12 @@
+---
+- name: Install LE fullchain cert for OCSP stapling
+  get_url:
+    url: "{{ acme_ssl_chain_cert_url }}"
+    dest: "{{ acme_ssl_chain_cert_path }}"
+    mode: 0644
+
+- name: Add OCSP config
+  template:
+    src: ocsp-stapling.conf.j2
+    dest: "{{ nginx_conf_path }}/ocsp-stapling.conf"
+    mode: 0644

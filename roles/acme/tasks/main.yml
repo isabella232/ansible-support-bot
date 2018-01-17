@@ -1,0 +1,17 @@
+---
+- include_tasks: install.yml
+  tags: acme:install
+- include_tasks: scripts.yml
+  tags: acme:scripts
+# todo: Remove, as replaced by noplanman.dhparam
+# - include_tasks: dhparam.yml
+#   tags: acme:dhparam
+#   when: acme_dhparam_create
+- include_tasks: hpkp.yml
+  tags: acme:hpkp
+  when: acme_hpkp_enabled
+- include_tasks: ocsp.yml
+  tags: acme:ocsp
+  when: acme_ocsp_enabled
+- include_tasks: certs.yml
+  tags: acme:certs

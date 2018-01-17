@@ -4,22 +4,24 @@ apt_extra_sources_php71: yes
 
 firewall_allowed_tcp_ports:
   - 22
+  - 80 # acme standalone
   - 443
 
 php_packages:
-  - php7.1-common
+  - php7.1-bcmath
   - php7.1-cli
+  - php7.1-common
+  - php7.1-curl
   - php7.1-dev
   - php7.1-fpm
-  - libpcre3-dev
   - php7.1-gd
-  - php7.1-curl
   - php7.1-imap
   - php7.1-json
+  - php7.1-mbstring
   - php7.1-opcache
   - php7.1-xml
-  - php7.1-mbstring
   - php-apcu
+  - libpcre3-dev
 
 php_mysql_package: php7.1-mysql
 
@@ -37,13 +39,17 @@ php_date_timezone: "Etc/UTC"
 nginx_server_tokens: "off"
 nginx_remove_default_vhost: yes
 
-nginx_conf_path: /etc/nginx/conf.d
+nginx_conf_path: "/etc/nginx/conf.d"
 nginx_default_vhost_path: "{{ nginx_conf_path }}/default.conf"
 
 nginx_upstreams:
   - name: php-handler
     servers:
       - unix:/var/run/php/php7.1-fpm.sock
+
+nginx_vhosts:
+  - server_name: "{{ supportbot_hostname }}"
+    template: "supportbot.vhost.j2"
 
 dhparam_size: 4096
 dhparam_create_on_local_machine: yes
@@ -61,3 +67,8 @@ nginx_extra_http_options: |
   ssl_session_timeout 1d;
   ssl_session_cache shared:SSL:10m;
   ssl_session_tickets off;
+
+acme_webserver_daemon: nginx
+acme_reloadcmd: "service nginx reload"
+acme_hpkp_enabled: yes
+acme_hpkp_path: "{{ nginx_conf_path }}"

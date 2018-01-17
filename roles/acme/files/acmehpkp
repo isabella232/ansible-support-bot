@@ -1,0 +1,168 @@
+#!/usr/bin/env bash
+# {{ ansible_managed }}
+# https://ithenrik.com/blog/posts/activating-http-public-key-pinning-hpkp-on-lets-encrypt
+
+# Pipe for getting the HPKP pin of a public certificate.
+_hpkp_pin() {
+  openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | base64
+}
+
+_showhelp() {
+  echo "Usage: nxhpkp domain
+[-ma --max-age]
+[-csr --csr-file, ...]
+[-p --pin, ...]
+[-a --apache-hpkp-dir]
+[-n --nginx-hpkp-dir]"
+}
+
+_add_pin() {
+  [ ! -z "${PINS}" ] && PINS="${PINS} "
+  PINS="${PINS}${1}"
+}
+
+_add_csr() {
+  if [ -f "${1}" ]; then
+    _add_pin "$(openssl req -pubkey < "${1}" | _hpkp_pin)"
+  fi
+}
+
+_get_apache_hpkp_header() {
+    APACHE_HPKP_HEADER="# not available yet"
+}
+
+_get_nginx_hpkp_header() {
+  NGINX_HPKP_HEADER="add_header Public-Key-Pins 'max-age=${MAXAGE};"
+  for PIN in $PINS; do
+    NGINX_HPKP_HEADER="${NGINX_HPKP_HEADER}pin-sha256=\"${PIN}\";"
+  done
+  NGINX_HPKP_HEADER="${NGINX_HPKP_HEADER}';"
+}
+
+_save_apache_hpkp_header() {
+  # Not available yet
+  return 0
+}
+
+_save_nginx_hpkp_header() {
+  mkdir -p "${NGINX_HPKP_PATH}"
+  echo "${NGINX_HPKP_HEADER}" > "${NGINX_HPKP_FILE}"
+}
+
+_process() {
+  MAXAGE="60"
+  PINS=""
+  DOMAIN="${1}"
+  # Remove the domain
+  shift
+
+  while [ ${#} -gt 0 ]; do
+    case "${1}" in
+      --max-age | -ma)         MAXAGE="${2}"           ;;
+      --csr-file | -csr)       _add_csr "${2}"         ;;
+      --pin | -p)              _add_pin "${2}"         ;;
+      --apache-hpkp-path | -a) APACHE_HPKP_PATH="${2}" ;;
+      --nginx-hpkp-path | -n)  NGINX_HPKP_PATH="${2}"  ;;
+      *)
+        echo "Unknown parameter : ${1}"
+        return 1
+        ;;
+    esac
+    shift 2
+  done
+
+  if [ -z "${APACHE_HPKP_PATH}${NGINX_HPKP_PATH}" ]; then
+    echo "At least 1 HPKP path must be set!"
+    return 1
+  fi
+  # if [ ! -z "${FROM_ACME}" ]; then
+  #   _add_csr "${DOMAIN}.csr"
+  # fi
+
+  if [ "${APACHE_HPKP_PATH}" ]; then
+    APACHE_HPKP_FILE="${APACHE_HPKP_PATH}/${DOMAIN}.hpkp"
+    CHECKSUM_BEFORE="$(shasum "${APACHE_HPKP_FILE}" 2>/dev/null)"
+    _get_apache_hpkp_header
+    _save_apache_hpkp_header
+    CHECKSUM_AFTER="$(shasum "${APACHE_HPKP_FILE}" 2>/dev/null)"
+  fi
+
+  if [ "${NGINX_HPKP_PATH}" ]; then
+    NGINX_HPKP_FILE="${NGINX_HPKP_PATH}/${DOMAIN}.hpkp"
+    CHECKSUM_BEFORE="$(shasum "${NGINX_HPKP_FILE}" 2>/dev/null)"
+    _get_nginx_hpkp_header
+    _save_nginx_hpkp_header
+    CHECKSUM_AFTER="$(shasum "${NGINX_HPKP_FILE}" 2>/dev/null)"
+  fi
+
+  if [ "${CHECKSUM_BEFORE}" = "${CHECKSUM_AFTER}" ]; then
+    echo "Unchanged."
+  else
+    echo "Updated."
+  fi
+}
+
+main() {
+  [ -z "$1" ] && _showhelp && return 1
+  _process "$@"
+}
+
+main "$@"
+
+
+
+# exit 1
+
+
+# # Create the HPKP directory, change into it and remember it to change back when we're done.
+# mkdir -p "${HPKP_PATH}" && pushd "$_" >/dev/null
+
+# HASH1="$(openssl req -pubkey < "${DOMAIN}.rsa.csr" | get_hpkp_pin)"
+# echo "ok"
+
+# printf "Generating EC key and CSR..."
+# openssl req -nodes -newkey ec:<(openssl ecparam -name prime256v1) \
+#   -keyout "${DOMAIN}.ec.key" \
+#   -out "${DOMAIN}.ec.csr" \
+#   -subj "/C=${CSR_C}/ST=${CSR_ST}/L=${CSR_L}/O=${CSR_O}/CN=${DOMAIN}" \
+#   >/dev/null 2>&1
+# HASH2="$(openssl req -pubkey < "${DOMAIN}.ec.csr" | get_hpkp_pin)"
+# echo "ok"
+
+# printf "Getting Pin hashes from Let's Encrypt."
+# #HASH3="$(curl -s https://letsencrypt.org/certs/lets-encrypt-x4-cross-signed.pem | openssl x509 -pubkey | get_hpkp_pin)"
+# HASH3="sRHdihwgkaib1P1gxX8HFszlD+7/gTfNvuAybgLPNis="
+# printf "."
+# #HASH4="$(curl -s https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem | openssl x509 -pubkey | get_hpkp_pin)"
+# HASH4="YLh1dUR9y6Kja30RrAn7JKnbQG/uEtLMkBgFF2Fuihg="
+# printf "."
+# #HASH5="$(curl -s https://letsencrypt.org/certs/isrgrootx1.pem | openssl x509 -pubkey | get_hpkp_pin)"
+# HASH5="C5+lpZ7tcVwmwQIMcRtPbsQtWLABXhQzejna0wHFr8M="
+# echo "ok"
+
+# echo
+# echo "[ Pin hashes for ${DOMAIN} ]"
+# echo "RSA   (backup): ${HASH1}"
+# echo "EC    (backup): ${HASH2}"
+# echo "LE X4 (inter) : ${HASH3}"
+# echo "LE X3 (inter) : ${HASH4}"
+# echo "LE X1 (root)  : ${HASH5}"
+# echo
+# echo "[ Config for Nginx ]"
+# echo "# ${HASH1:0:5}: backup (RSA) - ${DOMAIN}.rsa.csr"
+# echo "# ${HASH2:0:5}: backup (EC)  - ${DOMAIN}.ec.csr"
+# echo "# ${HASH3:0:5}: intermediate - lets-encrypt-x4-cross-signed.pem"
+# echo "# ${HASH4:0:5}: intermediate - lets-encrypt-x3cross-signed.pem"
+# echo "# ${HASH5:0:5}: root         - isrgrootx1.pem"
+# echo "add_header Public-Key-Pins '"
+# echo "    max-age=${MAXAGE};"
+# echo "    pin-sha256=\"${HASH1}\";"
+# echo "    pin-sha256=\"${HASH2}\";"
+# echo "    pin-sha256=\"${HASH3}\";"
+# echo "    pin-sha256=\"${HASH4}\";"
+# echo "    pin-sha256=\"${HASH5}\";"
+# echo "';"
+# echo
+
+# # Change back to previous folder.
+# popd >/dev/null

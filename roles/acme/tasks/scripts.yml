@@ -1,0 +1,8 @@
+---
+- name: Copy the acmehpkp script
+  copy:
+    src: "acmehpkp"
+    dest: "/usr/sbin/acmehpkp"
+    owner: root
+    group: root
+    mode: 0755

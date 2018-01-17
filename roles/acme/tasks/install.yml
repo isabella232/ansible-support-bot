@@ -1,0 +1,73 @@
+---
+- name: Update sources
+  apt: update_cache=yes cache_valid_time=86400
+  changed_when: no
+
+- name: Check if already installed and remember current version
+  shell: "shasum '{{ acme_home }}/acme.sh'"
+  register: acme_version_before
+  changed_when: false
+  failed_when: false
+
+- name: Get installation files
+  unarchive:
+    src: https://github.com/Neilpang/acme.sh/archive/master.tar.gz
+    dest: /tmp
+    remote_src: yes
+  changed_when: false
+  when: acme_version_before.rc != 0 or acme_keep_updated
+
+- name: Install acme.sh
+  shell: >
+    cd /tmp/acme.sh-master && ./acme.sh
+    --install
+    --nocron
+    --home "{{ acme_home }}"
+    --certhome "{{ acme_cert_home }}"
+    {{ (acme_account_email is defined) | ternary('--accountemail "' + acme_account_email|default('') + '"', '') }}
+    {{ (acme_account_key is defined) | ternary('--accountkey "' + acme_account_key|default('') + '"', '') }}
+    {{ (acme_account_conf is defined) | ternary('--accountconf "' + acme_account_conf|default('') + '"', '') }}
+    {{ (acme_useragent is defined) | ternary('--useragent "' + acme_useragent|default('') + '"', '') }}
+  register: acme_just_installed
+  when: acme_version_before.rc != 0
+
+- name: Upgrade acme.sh
+  shell: >
+    cd /tmp/acme.sh-master &&
+    ./acme.sh install nocron >/dev/null &&
+    shasum '{{ acme_home }}/acme.sh'
+  register: acme_version_after
+  changed_when: acme_version_before.stdout != acme_version_after.stdout
+  when: not acme_just_installed.changed and acme_keep_updated
+
+- name: Install cronjob
+  cron:
+    name: "acme.sh - certificate renewal"
+    special_time: daily
+    job: >
+      "{{ acme_home }}/acme.sh" --cron --home "{{ acme_home }}" > /dev/null
+  when: acme_install_cron
+
+- name: Get acme DNS APIs
+  get_url:
+    url: "{{ item.value.url }}"
+    dest: "{{ acme_home }}/{{ item.key }}.sh"
+    force: yes
+    mode: 0755
+  with_dict: "{{ acme_dns_apis }}"
+  when: item.value.url is defined
+
+- name: Install required acme DNS API packages
+  apt: name={{ item.1 }} state=present
+  with_subelements:
+    - "{{ acme_dns_apis }}"
+    - packages
+    - flags:
+      skip_missing: true
+
+- name: Ensure webroot exists
+  file:
+    dest: "{{ acme_webroot }}"
+    state: directory
+    owner: "{{ acme_webserver_user }}"
+    group: "{{ acme_webserver_group }}"

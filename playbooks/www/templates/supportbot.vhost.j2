@@ -1,0 +1,52 @@
+# {{ ansible_managed }}
+
+server {
+    listen 443 ssl http2;
+    server_name {{ supportbot_hostname }};
+
+    root {{ supportbot_root }}/public;
+    index index.php;
+
+    # SSL
+    ssl on;
+    ssl_certificate     {{ supportbot_ssl_certificate }};
+    ssl_certificate_key {{ supportbot_ssl_certificate_key }};
+
+    add_header Referrer-Policy "strict-origin-when-cross-origin";
+    add_header Content-Security-Policy "script-src 'self'";
+    add_header X-Content-Type-Options "nosniff";
+    add_header X-Frame-Options "sameorigin";
+    add_header X-XSS-Protection "1; mode=block";
+
+    # HPKP (must have * at the end, to not throw an error if file does not exist)
+    include {{ nginx_conf_path }}/{{ supportbot_hostname }}.hpkp*;
+
+    # HSTS
+    add_header Strict-Transport-Security 'max-age=15768000;';
+
+    client_max_body_size    50M;
+    client_body_buffer_size 256K;
+
+    include snippets/block-dotfiles.conf*;
+
+    location / {
+        # Allow only Telegram and custom exceptions.
+        allow 149.154.167.192/26;
+{% if supportbot_trusted_ips is defined %}
+{%   for trusted_ip in supportbot_trusted_ips %}
+        allow {{ trusted_ip }};
+{%   endfor %}
+{% endif %}
+        deny all;
+
+        try_files $uri $uri/ =404;
+    }
+
+    location ~ \.php$ {
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass php-handler;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+}

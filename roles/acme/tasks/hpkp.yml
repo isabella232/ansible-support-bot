@@ -1,0 +1,12 @@
+---
+- name: Generate HPKP headers for Nginx
+  shell: >
+    acmehpkp {{ item.hosts | first }} -ma {{ item.hpkp_max_age | default(acme_hpkp_max_age) }}
+    --nginx-hpkp-path "{{ acme_hpkp_path }}"
+    {{ (acme_hpkp_le_pins is defined) | ternary('-p "' + acme_hpkp_le_pins | default([]) | join('" -p "') + '"' | default(''), '') }}
+    {{ (item.hpkp_pins is defined)    | ternary('-p "' + item.hpkp_pins    | default([]) | join('" -p "') + '"' | default(''), '') }}
+    -csr "{{ acme_cert_home }}/{{ item.hosts | first }}/{{ item.hosts | first }}.csr"
+  with_items: "{{ acme_certs }}"
+  register: acme_generate_hpkp_headers
+  changed_when: acme_generate_hpkp_headers.stdout == 'Updated.'
+  notify: reload webserver

@@ -1,0 +1,7 @@
+# {{ ansible_managed }}
+
+# SSL OCSP Stapling
+# {{ acme_ssl_chain_cert_url }}
+ssl_stapling on;
+ssl_stapling_verify on;
+ssl_trusted_certificate {{ acme_ssl_chain_cert_path }};

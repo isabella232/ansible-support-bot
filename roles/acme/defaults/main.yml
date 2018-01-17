@@ -1,0 +1,59 @@
+---
+# Examples:
+#
+# acme_certs:
+#   example.com: { method: dns, dns_api: dns_xyz, dns_sleep: '90' }
+#   example.org: { method: webroot }
+#   example.org: {}
+#
+# acme_dns_apis:
+#   dns_xyz: {url: https://url.to/dns_xyz.sh}
+#   dns_xyz: {url: https://url.to/dns_xyz.sh, packages: [jq, idn]}
+
+acme_enabled: yes
+acme_keep_updated: yes
+
+acme_test: no
+acme_certs: []
+acme_dns_apis: {}
+
+acme_webroot: /var/www/acme
+acme_enable_webserver: yes
+acme_webserver_daemon: nginx
+acme_webserver_user: www-data
+acme_webserver_group: www-data
+
+acme_ssl_chain_cert_url: https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem
+acme_ssl_chain_cert_path: /etc/ssl/certs/lets-encrypt-x3-cross-signed.pem
+
+acme_home: /root/.acme.sh
+acme_cert_home: "{{ acme_home }}"
+acme_cert_install_path: /etc/ssl/private
+acme_ssl_trusted_certificate: "{{ acme_cert_install_path }}/"
+
+acme_hpkp_enabled: no
+acme_hpkp_path: /etc/nginx/conf.d
+#acme_hpkp_path: /etc/apache/conf.d
+acme_hpkp_max_age: "60"
+acme_hpkp_le_pins:
+  - "sRHdihwgkaib1P1gxX8HFszlD+7/gTfNvuAybgLPNis=" #LE X4 (intermediate-backup) [lets-encrypt-x4-cross-signed.pem]
+  - "YLh1dUR9y6Kja30RrAn7JKnbQG/uEtLMkBgFF2Fuihg=" #LE X3 (intermediate)        [lets-encrypt-x3-cross-signed.pem]
+  - "C5+lpZ7tcVwmwQIMcRtPbsQtWLABXhQzejna0wHFr8M=" #LE X1 (root)                [isrgrootx1.pem]
+
+acme_ocsp_enabled: yes
+
+# acme_dhparam_create: yes
+# acme_dhparam_create_on_localhost: yes
+# acme_dhparam_path: /etc/ssl/certs/dhparam.pem
+# acme_dhparam_size: 4096
+
+acme_reloadcmd: ""
+acme_install_cron: yes
+acme_keylength: 4096
+#acme_method:
+#acme_dns_api:
+#acme_dns_sleep:
+#acme_account_email:
+#acme_account_key:
+#acme_account_conf:
+#acme_useragent:

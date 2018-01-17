@@ -1,0 +1,55 @@
+---
+- name: Get certificates (standalone)
+  shell: >
+    "{{ acme_home }}/acme.sh" --issue
+    {{ (item.test | default(acme_test)) | ternary('--test','') }}
+    --keylength {{ item.keylength | default(acme_keylength) }}
+    --standalone
+    {{ (item.httpport is defined) | ternary('--httpport ' + item.httpport | default(''), '') }}
+    -d {{ item.hosts | join(' -d ') }}
+  ignore_errors: yes
+  with_items: "{{ acme_certs }}"
+  notify: reload webserver
+  when: (item.method is defined and item.method == 'standalone') or (acme_method is defined and acme_method == 'standalone')
+
+- name: Get certificates (webroot)
+  shell: >
+    "{{ acme_home }}/acme.sh" --issue
+    {{ (item.test | default(acme_test)) | ternary('--test','') }}
+    --keylength {{ item.keylength | default(acme_keylength) }}
+    -w "{{ acme_webroot }}"
+    -d {{ item.hosts | join(' -d ') }}
+  ignore_errors: yes
+  with_items: "{{ acme_certs }}"
+  notify: reload webserver
+  when: (item.method is defined and item.method == 'webroot') or (item.method is undefined and (acme_method is undefined or acme_method == 'webroot'))
+
+- name: Get certificates (DNS)
+  shell: >
+    "{{ acme_home }}/acme.sh" --issue
+    {{ acme_test | ternary('--test','') }}
+    {{ ((item.force is defined and item.force) or (acme_force is defined and acme_force)) | ternary('--force', '') }}
+    --keylength {{ item.keylength | default(acme_keylength) }}
+    --dns {{ item.dns_api | default(acme_dns_api) }}
+    {{ (item.dns_sleep is defined) | ternary('--dnssleep ' + item.dns_sleep | default(''), (acme_dns_sleep is defined) | ternary('--dnssleep ' + acme_dns_sleep | default(''), '')) }}
+    -d {{ item.hosts | join(' -d ') }}
+  ignore_errors: yes
+  with_items: "{{ acme_certs }}"
+  notify: reload webserver
+  when: ((item.method is defined and item.method == 'dns') or (acme_method is defined and acme_method == 'dns')) and (item.dns_api is defined or acme_dns_api is defined)
+
+- name: Install certificates
+  shell: >
+    CERT_INSTALL_PATH="{{ acme_cert_install_path }}/{{ item.hosts | first }}" &&
+    mkdir -p "$CERT_INSTALL_PATH" &&
+    "{{ acme_home }}/acme.sh" --installcert -d {{ item.hosts | first }}
+    --certpath "$CERT_INSTALL_PATH/{{ item.hosts | first }}.crt"
+    --keypath "$CERT_INSTALL_PATH/{{ item.hosts | first }}.key"
+    --capath "$CERT_INSTALL_PATH/ca.crt"
+    --fullchainpath "$CERT_INSTALL_PATH/fullchain.crt"
+    --reloadcmd "{{ item.reloadcmd | default(acme_reloadcmd) }}"
+  ignore_errors: yes
+  changed_when: no
+  with_items: "{{ acme_certs }}"
+  notify: reload webserver
+  tags: acme:certs:install

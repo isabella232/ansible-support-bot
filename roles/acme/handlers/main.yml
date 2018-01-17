@@ -1,0 +1,12 @@
+---
+- name: reload webserver
+  service:
+    name: "{{ acme_webserver_daemon }}"
+    state: reloaded
+  when: acme_enable_webserver
+
+- name: restart webserver
+  service:
+    name: "{{ acme_webserver_daemon }}"
+    state: restarted
+  when: acme_enable_webserver

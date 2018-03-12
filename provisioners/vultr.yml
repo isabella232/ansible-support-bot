@@ -59,12 +59,13 @@
         line: "source /etc/network/interfaces.d/*"
       notify: restart networking
 
-    - name: Write private network interface (eth1)
+    - name: Write private network interface (ens7)
       copy:
         content: |
-          auto eth1
-          iface eth1 inet static
+          auto ens7
+          iface ens7 inet static
             address {{ hostvars[inventory_hostname].internal_ip }}
             netmask 255.255.0.0
-        dest: /etc/network/interfaces.d/eth1
+            mtu 1450
+        dest: /etc/network/interfaces.d/ens7
       notify: restart networking

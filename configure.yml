@@ -5,10 +5,10 @@
   tasks:
     - name: Set IP facts
       set_fact:
-        www_main_ip: "{{ hostvars[groups['www'][0]].ansible_all_ipv4_addresses[0] }}"
-        www_internal_ip: "{{ hostvars[groups['www'][0]].ansible_all_ipv4_addresses[1] }}"
-        db_main_ip: "{{ hostvars[groups['db'][0]].ansible_all_ipv4_addresses[0] }}"
-        db_internal_ip: "{{ hostvars[groups['db'][0]].ansible_all_ipv4_addresses[1] }}"
+        www_main_ip: "{{ hostvars[groups['www'][0]].ansible_ens3.ipv4.address }}"
+        www_internal_ip: "{{ hostvars[groups['www'][0]].ansible_ens7.ipv4.address }}"
+        db_main_ip: "{{ hostvars[groups['db'][0]].ansible_ens3.ipv4.address }}"
+        db_internal_ip: "{{ hostvars[groups['db'][0]].ansible_ens7.ipv4.address }}"
       tags: always
 
 - import_playbook: playbooks/db/main.yml

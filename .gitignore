@@ -2,3 +2,4 @@
 /.vagrant/
 /vars.yml
 /inventories/*/inventory
+*.retry
